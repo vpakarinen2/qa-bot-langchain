@@ -3,8 +3,8 @@
 ## Setup
 
 1. **Clone the repository**
-- ``git clone https://github.com/vpakarinen2/qwen-qa-bot-langchain.git``
-- ``cd qwen-qa-bot-langchain``
+- ``git clone https://github.com/vpakarinen2/qa-bot-langchain.git``
+- ``cd qa-bot-langchain``
 
 2. **Create virtual environment (Windows, Python 3.11)**
 - ``py -3.11 -m venv .venv``
