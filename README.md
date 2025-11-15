@@ -1,0 +1,21 @@
+# Simple Q/A bot using LangChain.
+
+## Setup
+
+1. **Clone the repository**
+- ``git clone https://github.com/vpakarinen2/qwen-qa-bot-langchain.git``
+- ``cd qwen-qa-bot-langchain``
+
+2. **Create virtual environment (Windows, Python 3.11)**
+- ``py -3.11 -m venv .venv``
+- ``.venv\Scripts\Activate.ps1`` (source .venv/bin/activate on Linux)
+
+3. **Install dependencies**
+
+- ``python -m pip install --upgrade pip``
+- ``pip install -r requirements.txt``
+
+## Usage
+1. **Run the Python script**
+
+- ``python qwen_qa_bot.py``
