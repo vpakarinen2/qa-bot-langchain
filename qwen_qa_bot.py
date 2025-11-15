@@ -1,5 +1,6 @@
-"""Simple Q/A Bot using LangChain with Qwen3-4B-Thinking-2507."""
+"""Simple Q/A Bot using LangChain."""
 
+import argparse
 import torch
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -10,11 +11,12 @@ from pydantic.v1 import Field
 
 
 class QwenLocalLLM(LLM):
-    """LangChain LLM wrapper for Qwen/Qwen3-4B-Thinking-2507."""
+    """LangChain LLM wrapper."""
 
     # Pydantic fields
     tokenizer: Any = Field(default=None, exclude=True)
     model: Any = Field(default=None, exclude=True)
+    trust_remote_code: bool = False
     device: str = "cpu"
 
     class Config:
@@ -25,18 +27,21 @@ class QwenLocalLLM(LLM):
         self,
         model_name: str = "Qwen/Qwen3-4B-Thinking-2507",
         device: Optional[str] = None,
+        trust_remote_code: bool = False,
         **kwargs,
     ):
         # Initialize BaseModel
         super().__init__(**kwargs)
 
         self.device = device if device else ("cuda" if torch.cuda.is_available() else "cpu")
+        self.trust_remote_code = trust_remote_code
 
         # Load tokenizer and model
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=self.trust_remote_code)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             dtype=torch.float16,
+            trust_remote_code=self.trust_remote_code
         ).to(self.device)
 
     @property
@@ -74,9 +79,38 @@ class QwenLocalLLM(LLM):
         return text.strip()
 
 
+def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments."""
+    parser = argparse.ArgumentParser(
+        description="Simple Q/A Bot using LangChain."
+    )
+    parser.add_argument(
+        "-q",
+        "--question",
+        type=str,
+        required=False,
+        default="What is the currency of Japan?",
+        help="Question to ask the model.",
+    )
+    parser.add_argument(
+        "-m",
+        "--model-name",
+        type=str,
+        required=False,
+        default="Qwen/Qwen3-4B-Thinking-2507",
+        help="Hugging Face model id to load (e.g. Qwen/Qwen3-4B-Thinking-2507).",
+    )
+    parser.add_argument(
+        "--trust-remote-code",
+        action="store_true",
+        help="Allow execution of custom remote code.",
+    )
+    return parser.parse_args()
+
+
 def main():
-    # Initialize local Qwen LLM
-    llm = QwenLocalLLM()
+    args = parse_args()
+    llm = QwenLocalLLM(model_name=args.model_name, trust_remote_code=args.trust_remote_code)
 
     prompt_template = """You are a helpful assistant.
 
@@ -89,11 +123,12 @@ Answer:"""
     prompt = PromptTemplate(template=prompt_template, input_variables=["question"])
     qa_chain = prompt | llm
 
-    question = "What is the currency of Japan?"
+    question = args.question
     answer = qa_chain.invoke({"question": question})
 
+    print(f"Model:   {args.model_name}")
     print(f"Question: {question}")
-    print(f"Answer: {answer}")
+    print(f"Answer:   {answer}")
 
 
 if __name__ == "__main__":
