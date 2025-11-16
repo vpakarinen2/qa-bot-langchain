@@ -18,7 +18,7 @@
 ## Usage
 1. **Run the Python script**
 
-- ``python qwen_qa_bot.py``
+- ``python qa_bot.py``
 
 ## CLI arguments
 
