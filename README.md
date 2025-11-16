@@ -1,4 +1,4 @@
-# Simple Q/A bot to run local LLMs.
+# Q/A bot using LangChain.
 
 ## Setup
 
